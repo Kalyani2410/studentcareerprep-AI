@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-
+import jsPDF from "jspdf";
 function ExamPrep() {
   const [file, setFile] = useState(null);
   const [studyNotes, setStudyNotes] = useState(null);
@@ -47,7 +47,97 @@ function ExamPrep() {
       setLoading(false);
     }
   };
+  const handleDownload = () => {
+    if (!studyNotes) return;
 
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 20;
+
+    const addText = (text, fontSize = 11, bold = false, gapAfter = 6) => {
+      doc.setFontSize(fontSize);
+      doc.setFont(undefined, bold ? "bold" : "normal");
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach((line) => {
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += fontSize * 0.5;
+      });
+      y += gapAfter;
+    };
+
+    addText(studyNotes.title, 18, true, 2);
+    addText(studyNotes.subject, 12, false, 8);
+
+    studyNotes.topics?.forEach((t) => {
+      addText(t.topic, 14, true, 3);
+      addText(t.simple_explanation, 11, false, 4);
+
+      if (t.key_points?.length) {
+        addText("Key Points:", 11, true, 2);
+        t.key_points.forEach((kp) => addText(`- ${kp.term}: ${kp.explanation}`, 10, false, 1));
+        y += 3;
+      }
+
+      if (t.definitions?.length) {
+        addText("Definitions:", 11, true, 2);
+        t.definitions.forEach((d) => addText(`- ${d.term}: ${d.definition}`, 10, false, 1));
+        y += 3;
+      }
+
+      if (t.examples?.length) {
+        addText("Examples:", 11, true, 2);
+        t.examples.forEach((ex) => addText(`- ${ex}`, 10, false, 1));
+        y += 3;
+      }
+
+      if (t.formulas?.length) {
+        addText("Formulas:", 11, true, 2);
+        t.formulas.forEach((f) => addText(`- ${f}`, 10, false, 1));
+        y += 3;
+      }
+
+      if (t.exam_points?.length) {
+        addText("Exam Focus:", 11, true, 2);
+        t.exam_points.forEach((e) => addText(`- ${e}`, 10, false, 1));
+        y += 3;
+      }
+
+      y += 4;
+    });
+
+    if (studyNotes.quick_revision?.length) {
+      addText("Quick Revision", 14, true, 3);
+      studyNotes.quick_revision.forEach((q) => addText(`- ${q}`, 10, false, 1));
+      y += 4;
+    }
+
+    if (studyNotes.important_questions) {
+      addText("Practice Questions", 14, true, 3);
+
+      if (studyNotes.important_questions.short_answer?.length) {
+        addText("Short Answer:", 11, true, 2);
+        studyNotes.important_questions.short_answer.forEach((q) => addText(`- ${q}`, 10, false, 1));
+        y += 2;
+      }
+      if (studyNotes.important_questions.concept_based?.length) {
+        addText("Concept-Based:", 11, true, 2);
+        studyNotes.important_questions.concept_based.forEach((q) => addText(`- ${q}`, 10, false, 1));
+        y += 2;
+      }
+      if (studyNotes.important_questions.application_based?.length) {
+        addText("Application-Based:", 11, true, 2);
+        studyNotes.important_questions.application_based.forEach((q) => addText(`- ${q}`, 10, false, 1));
+      }
+    }
+
+    doc.save(`${studyNotes.title || "study-notes"}.pdf`);
+  };
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
@@ -84,7 +174,12 @@ function ExamPrep() {
           <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-3xl font-bold text-gray-800">{studyNotes.title}</h2>
             <p className="text-indigo-500 font-semibold mb-6">{studyNotes.subject}</p>
-
+            <button
+              onClick={handleDownload}
+              className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 mb-6"
+            >
+              Download PDF
+            </button>
             {studyNotes.topics?.map((t, i) => (
               <div key={i} className="mb-8 border-b pb-6 last:border-b-0">
                 <h3 className="text-xl font-bold text-gray-700 mb-2">{t.topic}</h3>
