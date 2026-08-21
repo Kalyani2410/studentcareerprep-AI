@@ -1,15 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 function Register() {
-
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
     });
+
     const [message, setMessage] = useState("");
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -21,84 +23,163 @@ function Register() {
         e.preventDefault();
 
         try {
-
             const response = await axios.post(
                 "http://localhost:5000/api/auth/register",
                 formData
             );
 
             setMessage(response.data.message);
+        } catch (error) {
+            console.log(error);
+            console.log(error.response);
 
-        } 
-
-            catch (error) {
-
-  console.log(error);
-
-  console.log(error.response);
-
-  setMessage(
-    error.response?.data?.message || "Registration Failed"
-  );
-}
-
-        
+            setMessage(
+                error.response?.data?.message || "Registration Failed"
+            );
+        }
     };
 
     return (
-        <div>
+        <div className="min-h-screen bg-white text-[#172B35]">
             <Navbar />
 
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+            <main className="min-h-[calc(100vh-73px)] flex items-center justify-center px-6 py-12">
 
-                    <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
-                        Register
-                    </h2>
-                    {
-                        message && (
-                            <p className="text-green-600 text-center mb-4">
+                <div className="w-full max-w-md">
+
+                    {/* Heading
+                    <div className="text-center mb-8">
+
+                        <div className="mx-auto mb-5 w-14 h-14 rounded-2xl bg-[#B8E3E9] flex items-center justify-center">
+                            <span className="text-2xl">✦</span>
+                        </div>
+
+                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#172B35]">
+                            Create your account
+                        </h2>
+
+                        <p className="mt-3 text-[#60747C] text-sm sm:text-base">
+                            Start preparing smarter with CareerPrep AI.
+                        </p>
+
+                    </div> */}
+
+                    {/* Form Card */}
+                    <div className="bg-white border border-[#DDECEF] rounded-2xl p-7 sm:p-9 shadow-[0_8px_30px_rgba(23,43,53,0.06)]">
+
+                        {message && (
+                            <div className="mb-5 rounded-lg bg-[#F1FAFB] border border-[#B8E3E9] px-4 py-3 text-sm text-[#315B65]">
                                 {message}
+                            </div>
+                        )}
+
+                        <form
+                            className="space-y-5"
+                            onSubmit={handleSubmit}
+                        >
+
+                            {/* Name */}
+                            <div>
+                                <label
+                                    htmlFor="name"
+                                    className="block text-sm font-medium text-[#172B35] mb-2"
+                                >
+                                    Full Name
+                                </label>
+
+                                <input
+                                    id="name"
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Enter your full name"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg border border-[#C9DDE1] bg-white text-[#172B35] placeholder:text-[#8A9BA1] outline-none transition-all duration-200 focus:border-[#7FCAD3] focus:ring-4 focus:ring-[#B8E3E9]/40"
+                                />
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label
+                                    htmlFor="email"
+                                    className="block text-sm font-medium text-[#172B35] mb-2"
+                                >
+                                    Email Address
+                                </label>
+
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="Enter your email"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg border border-[#C9DDE1] bg-white text-[#172B35] placeholder:text-[#8A9BA1] outline-none transition-all duration-200 focus:border-[#7FCAD3] focus:ring-4 focus:ring-[#B8E3E9]/40"
+                                />
+                            </div>
+
+                            {/* Password */}
+                            <div>
+                                <label
+                                    htmlFor="password"
+                                    className="block text-sm font-medium text-[#172B35] mb-2"
+                                >
+                                    Password
+                                </label>
+
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Create a password"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg border border-[#C9DDE1] bg-white text-[#172B35] placeholder:text-[#8A9BA1] outline-none transition-all duration-200 focus:border-[#7FCAD3] focus:ring-4 focus:ring-[#B8E3E9]/40"
+                                />
+
+                                <p className="mt-2 text-xs text-[#60747C]">
+                                    Choose a password you can remember easily.
+                                </p>
+                            </div>
+
+                            {/* Register button */}
+                            <button
+                                type="submit"
+                                className="w-full bg-[#172B35] text-white py-3.5 rounded-lg font-medium transition-all duration-200 hover:bg-[#29434F] hover:-translate-y-0.5 hover:shadow-lg"
+                            >
+                                Create Account
+                            </button>
+
+                        </form>
+
+                        {/* Login */}
+                        <div className="mt-7 pt-6 border-t border-[#E5EFF1] text-center">
+
+                            <p className="text-sm text-[#60747C]">
+                                Already have an account?{" "}
+                                <Link
+                                    to="/login"
+                                    className="font-semibold text-[#315B65] hover:text-[#172B35] transition-colors"
+                                >
+                                    Login
+                                </Link>
                             </p>
-                        )
-                    }
-                    <form className="space-y-4" onSubmit={handleSubmit}>
 
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter Name"
-                            className="w-full border p-3 rounded-lg"
-                        />
+                        </div>
 
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter Email"
-                            className="w-full border p-3 rounded-lg"
-                        />
+                    </div>
 
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter Password"
-                            className="w-full border p-3 rounded-lg"
-                        />
-
-                        <button className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
-                            Register
-                        </button>
-
-                    </form>
+                    {/* Small bottom text */}
+                    <p className="text-center text-xs text-[#8A9BA1] mt-6">
+                        Build your resume. Prepare for exams. Get career-ready.
+                    </p>
 
                 </div>
-            </div>
+
+            </main>
         </div>
     );
 }
